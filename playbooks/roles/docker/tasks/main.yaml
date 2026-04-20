@@ -1,0 +1,17 @@
+---
+- name: Check if Docker is installed
+  command: docker version
+  register: docker_check
+  changed_when: false
+  failed_when: false
+
+- name: Download Docker install script
+  get_url:
+    url: https://get.docker.com
+    dest: /tmp/get-docker.sh
+    mode: "0755"
+  when: docker_check.rc != 0
+
+- name: Install Docker
+  shell: /tmp/get-docker.sh
+  when: docker_check.rc != 0

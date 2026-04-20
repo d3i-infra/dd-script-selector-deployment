@@ -1,0 +1,93 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: yes
+  become: yes
+  vars:
+    data_donation_task_repo: https://github.com/d3i-infra/data-donation-task
+    data_donation_task_dir: /data-donation-task
+    dd_script_selector_name: dd-script-selector
+    dd_script_selector_port: 4000
+    dd_script_selector_repo: https://github.com/d3i-infra/dd-script-selector
+    dd_script_selector_dir: /dd-script-selector
+    phx_host: "{{ ansible_fqdn }}"
+    secret_key_base: "27992aefea69d0f136b2b2329de2ad6f42c3d19e3d9110b512f42ef514ef60b14fc493afadf16f2c13ed134eb5d58ed168cec2168985ea32bc59e39e2117e714"
+
+  roles:
+    - role: nginx
+      tags: nginx_tag
+    - role: docker
+      tags: docker_tag
+    - role: dd-script-builder
+      tags: dd_script_builder_tag
+
+  tasks:
+
+    ##################################################
+    # Configure Nginx as a reverse proxy
+    # This configuration is dependent on the SRC-NGINX component provided by Surf
+
+    - name: Add ansible markers in /etc/nginx/conf.d/ssl_main.conf
+      shell: perl -0 -i -pe 's/(.*server {.*?})(.*?)(listen 443.*)/\1\n# BEGIN ANSIBLE MANAGED BLOCK\n# END ANSIBLE MANAGED BLOCK\n\3/gms' /etc/nginx/conf.d/ssl_main.conf
+
+    - name: Fill the location block of the ssl block
+      blockinfile:
+        path: /etc/nginx/conf.d/ssl_main.conf
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        block: |
+          location / {
+            allow all;
+            proxy_pass                http://localhost:{{ dd_script_selector_port }};
+            proxy_set_header          X-Forwarded-Proto $scheme;
+            proxy_set_header          X-Forwarded-For $remote_addr;
+            proxy_set_header          X-Real-IP $remote_addr;
+            proxy_set_header          Host $http_host;
+            proxy_http_version        1.1;
+            proxy_set_header          Upgrade $http_upgrade;
+            proxy_set_header          Connection "upgrade";
+            proxy_max_temp_file_size  1m;
+          }
+
+    - name: Check whether the nginx configuration is valid
+      shell: nginx -t
+
+    - name: Restart the Nginx service
+      ansible.builtin.systemd:
+        name: nginx.service
+        state: restarted
+        daemon_reload: true
+
+    ##################################################
+    # Build and run dd-script-selector with Docker
+
+    - name: Clone data-donation-task from Github
+      git:
+        repo: "{{ data_donation_task_repo }}"
+        update: yes
+        dest: "{{ data_donation_task_dir }}"
+
+    - name: Clone dd-script-selector from Github
+      git:
+        repo: "{{ dd_script_selector_repo }}"
+        update: yes
+        dest: "{{ dd_script_selector_dir }}"
+
+    - name: Build Docker image
+      shell:
+        cmd: docker build -t dd-script-selector:latest .
+        chdir: "{{ dd_script_selector_dir }}"
+
+    - name: Stop and remove existing container
+      shell: docker rm -f dd-script-selector || true
+
+    - name: Run dd-script-selector container
+      shell: >
+        docker run -d
+        --name dd-script-selector
+        --restart always
+        --network=host
+        -e PHX_HOST="{{ domain_name }}"
+        -e SECRET_KEY_BASE="{{ secret_key_base }}"
+        -e PLATFORMS_DIR="{{ data_donation_task_dir }}"
+        -v "{{ data_donation_task_dir }}:{{ data_donation_task_dir }}"
+        dd-script-selector:latest

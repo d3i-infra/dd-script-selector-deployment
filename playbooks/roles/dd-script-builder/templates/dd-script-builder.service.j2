@@ -1,0 +1,12 @@
+[Unit]
+Description=dd-script-builder FastAPI service
+After=network.target
+
+[Service]
+WorkingDirectory={{ dd_script_builder_dir }}
+Environment=REPO_SOURCE={{ data_donation_task_dir }}
+ExecStart={{ dd_script_builder_venv_dir }}/bin/uvicorn src.main:app --host 0.0.0.0 --port {{ dd_script_builder_port }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

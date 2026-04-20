@@ -1,0 +1,10 @@
+---
+- name: Reload systemd
+  systemd:
+    daemon_reload: true
+  notify: Restart service
+
+- name: Restart service
+  systemd:
+    name: "{{ dd_script_builder_service_name }}"
+    state: restarted

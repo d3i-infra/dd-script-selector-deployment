@@ -1,0 +1,6 @@
+---
+dd_script_builder_repo: https://github.com/d3i-infra/dd-script-builder
+dd_script_builder_dir: /dd-script-builder
+dd_script_builder_venv_dir: "{{ dd_script_builder_dir }}/.venv"
+dd_script_builder_service_name: dd-script-builder
+dd_script_builder_port: 8000

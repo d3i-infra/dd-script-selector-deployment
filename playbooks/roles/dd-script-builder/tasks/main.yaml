@@ -1,0 +1,87 @@
+---
+# === Python 3.14 ===
+- name: Check if software-properties-common is installed
+  command: dpkg-query -W -f='${Status}' software-properties-common
+  register: spc_status
+  failed_when: false
+  changed_when: false
+
+- name: Install software-properties-common
+  apt:
+    name: software-properties-common
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: spc_status.stdout != "install ok installed"
+
+- name: Add deadsnakes PPA for Python 3.14
+  apt_repository:
+    repo: ppa:deadsnakes/ppa
+    state: present
+
+- name: Install Python 3.14
+  apt:
+    name:
+      - python3.14
+      - python3.14-venv
+      - python3.14-dev
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+# === Node.js v24.14.0 ===
+- name: Download Node.js v24.14.0 tarball
+  get_url:
+    url: https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz
+    dest: /tmp/node-v24.14.0-linux-x64.tar.xz
+
+- name: Extract Node.js v24.14.0 into /usr/local
+  unarchive:
+    src: /tmp/node-v24.14.0-linux-x64.tar.xz
+    dest: /usr/local
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+    creates: /usr/local/bin/node
+
+# === pnpm ===
+- name: Install pnpm via npm
+  npm:
+    name: pnpm
+    global: yes
+    state: present
+
+# === poetry ===
+- name: Install poetry system-wide
+  shell: curl -sSL https://install.python-poetry.org | python3 -
+  args:
+    creates: /usr/local/bin/poetry
+  environment:
+    POETRY_HOME: /usr/local
+
+# === app ===
+- name: Clone dd-script-builder from Github
+  git:
+    repo: "{{ dd_script_builder_repo }}"
+    update: yes
+    dest: "{{ dd_script_builder_dir }}"
+
+- name: Create virtualenv and install dependencies
+  pip:
+    requirements: "{{ dd_script_builder_dir }}/requirements.txt"
+    virtualenv: "{{ dd_script_builder_venv_dir }}"
+    virtualenv_command: python3.14 -m venv
+
+- name: Install systemd service
+  template:
+    src: dd-script-builder.service.j2
+    dest: /etc/systemd/system/{{ dd_script_builder_service_name }}.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable and start service
+  systemd:
+    name: "{{ dd_script_builder_service_name }}"
+    enabled: true
+    state: started
