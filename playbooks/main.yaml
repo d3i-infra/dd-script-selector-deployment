@@ -88,6 +88,6 @@
         --network=host
         -e PHX_HOST="{{ domain_name }}"
         -e SECRET_KEY_BASE="{{ secret_key_base }}"
-        -e TASK_DIR="{{ data_donation_task_dir }}"
-        -v "{{ data_donation_task_dir }}:{{ data_donation_task_dir }}"
+        -e BUILDER_BASE=http://localhost:8000
+        -e PLATFORMS="chatgpt,facebook,instagram,linkedin,netflix,tiktok,whatsapp,x,youtube"
         dd-script-selector:latest
