@@ -88,6 +88,6 @@
         --network=host
         -e PHX_HOST="{{ domain_name }}"
         -e SECRET_KEY_BASE="{{ secret_key_base }}"
-        -e PLATFORMS_DIR="{{ data_donation_task_dir }}"
+        -e TASK_DIR="{{ data_donation_task_dir }}"
         -v "{{ data_donation_task_dir }}:{{ data_donation_task_dir }}"
         dd-script-selector:latest
