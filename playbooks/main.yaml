@@ -8,6 +8,7 @@
     data_donation_task_dir: /data-donation-task
     dd_script_selector_name: dd-script-selector
     dd_script_selector_port: 4000
+          add_header Content-Security-Policy "frame-ancestors 'self' https://datadonation.eu" always;
     dd_script_selector_repo: https://github.com/d3i-infra/dd-script-selector
     dd_script_selector_dir: /dd-script-selector
     phx_host: "{{ ansible_fqdn }}"
