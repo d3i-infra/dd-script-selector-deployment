@@ -35,6 +35,7 @@
         path: /etc/nginx/conf.d/ssl_main.conf
         marker: "# {mark} ANSIBLE MANAGED BLOCK"
         block: |
+          add_header Content-Security-Policy "frame-ancestors 'self' https://datadonation.eu" always;
           location / {
             allow all;
             proxy_pass                http://localhost:{{ dd_script_selector_port }};
