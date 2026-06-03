@@ -13,7 +13,7 @@ On the VM:
 - **Nginx** — reverse proxy, handles SSL, forwards traffic to the Phoenix app
 - **dd-script-selector** — Phoenix web app (Docker, port 4000). Users interact with it to generate a script config.
 - **dd-script-builder** — FastAPI/Python API (systemd + uvicorn, port 8000). Called by the Phoenix app when a user finalizes a config; produces a zip file that is served back to the user.
-- **data-donation-task** — cloned from GitHub. Mounted into the Docker container as `PLATFORMS_DIR`; contains the task definitions the Phoenix app reads at runtime.
+- **data-donation-task** — cloned from GitHub; used by dd-script-builder at runtime.
 
 ## Running the playbooks
 

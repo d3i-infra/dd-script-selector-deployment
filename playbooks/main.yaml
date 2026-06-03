@@ -5,6 +5,7 @@
   become: yes
   vars:
     data_donation_task_repo: https://github.com/d3i-infra/data-donation-task
+    data_donation_task_version: development
     data_donation_task_dir: /data-donation-task
     dd_script_selector_name: dd-script-selector
     dd_script_selector_port: 4000
@@ -64,6 +65,7 @@
     - name: Clone data-donation-task from Github
       git:
         repo: "{{ data_donation_task_repo }}"
+        version: "{{ data_donation_task_version }}"
         update: yes
         dest: "{{ data_donation_task_dir }}"
 
