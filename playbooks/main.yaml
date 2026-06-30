@@ -9,7 +9,7 @@
     dd_script_selector_port: 4000
     dd_script_selector_repo: https://github.com/d3i-infra/dd-script-selector
     dd_script_selector_dir: /dd-script-selector
-    phx_host: "{{ ansible_fqdn }}"
+    domain_name: "{{ ansible_fqdn }}"
     secret_key_base: "27992aefea69d0f136b2b2329de2ad6f42c3d19e3d9110b512f42ef514ef60b14fc493afadf16f2c13ed134eb5d58ed168cec2168985ea32bc59e39e2117e714"
 
   roles:
