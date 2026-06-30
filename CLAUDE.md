@@ -28,13 +28,19 @@ ansible-playbook playbooks/main.yaml --tags dd_script_builder_tag -e domain_name
 
 # Deploy only nginx + dd-script-selector (Docker)
 ansible-playbook playbooks/main.yaml --tags nginx_tag,docker_tag -e domain_name=<your-fqdn>
+
+# Deploy only data-donation-task (clone + install daily sync timer)
+ansible-playbook playbooks/main.yaml --tags data_donation_task_tag -e domain_name=<your-fqdn>
+
+# Override branch (default: development)
+ansible-playbook playbooks/main.yaml --tags data_donation_task_tag -e domain_name=<your-fqdn> -e data_donation_task_branch=main
 ```
 
 ## Playbook structure
 
 ```
 playbooks/
-  main.yaml                         # single playbook; all roles + Docker/nginx tasks
+  main.yaml                         # nginx, docker, dd-script-builder, dd-script-selector, data-donation-task
   roles/
     nginx/    # redirects nginx logs to rsyslog (expects SRC-NGINX from SURF)
     docker/   # installs Docker via get.docker.com
@@ -43,6 +49,12 @@ playbooks/
       templates/
         dd-script-builder.service.j2
       defaults/main.yaml            # repo URL, dirs, port (8000)
+    data-donation-task/
+      tasks/  # clones repo, installs sync service + timer
+      templates/
+        data-donation-task-sync.service.j2
+        data-donation-task-sync.timer.j2
+      defaults/main.yaml            # repo URL, branch (development), dir
 ```
 
 ## Notes

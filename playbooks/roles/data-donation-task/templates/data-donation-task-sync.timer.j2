@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily sync of data-donation-task repository
+Requires={{ data_donation_task_sync_service_name }}.service
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=1800
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,35 @@
+---
+- name: Install git
+  apt:
+    name: git
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install sync systemd service
+  template:
+    src: data-donation-task-sync.service.j2
+    dest: /etc/systemd/system/{{ data_donation_task_sync_service_name }}.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install sync systemd timer
+  template:
+    src: data-donation-task-sync.timer.j2
+    dest: /etc/systemd/system/{{ data_donation_task_sync_service_name }}.timer
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Enable and start daily sync timer
+  systemd:
+    name: "{{ data_donation_task_sync_service_name }}.timer"
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Run sync service immediately for initial clone and dependency install
+  systemd:
+    name: "{{ data_donation_task_sync_service_name }}.service"
+    state: started

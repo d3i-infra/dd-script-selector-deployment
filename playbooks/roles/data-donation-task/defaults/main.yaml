@@ -1,0 +1,5 @@
+---
+data_donation_task_repo: https://github.com/d3i-infra/data-donation-task
+data_donation_task_branch: development
+data_donation_task_dir: /data-donation-task
+data_donation_task_sync_service_name: data-donation-task-sync
