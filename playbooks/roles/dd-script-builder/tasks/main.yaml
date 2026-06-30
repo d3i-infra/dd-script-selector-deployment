@@ -30,35 +30,6 @@
     update_cache: yes
     cache_valid_time: 3600
 
-# === Node.js v24.14.0 ===
-- name: Download Node.js v24.14.0 tarball
-  get_url:
-    url: https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz
-    dest: /tmp/node-v24.14.0-linux-x64.tar.xz
-
-- name: Extract Node.js v24.14.0 into /usr/local
-  unarchive:
-    src: /tmp/node-v24.14.0-linux-x64.tar.xz
-    dest: /usr/local
-    remote_src: yes
-    extra_opts: [--strip-components=1]
-    creates: /usr/local/bin/node
-
-# === pnpm ===
-- name: Install pnpm via npm
-  npm:
-    name: pnpm
-    global: yes
-    state: present
-
-# === poetry ===
-- name: Install poetry system-wide
-  shell: curl -sSL https://install.python-poetry.org | python3 -
-  args:
-    creates: /usr/local/bin/poetry
-  environment:
-    POETRY_HOME: /usr/local
-
 # === app ===
 - name: Clone dd-script-builder from Github
   git:
