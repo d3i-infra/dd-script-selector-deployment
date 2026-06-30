@@ -12,7 +12,7 @@ ExecStart=/usr/bin/git clone --branch {{ data_donation_task_branch }} {{ data_do
 # --dangerously-allow-all-builds is required because some dependencies (e.g. esbuild,
 # better-sqlite3) include native Node add-ons compiled via lifecycle scripts that
 # pnpm blocks by default as a security measure.
-ExecStart=/usr/bin/pnpm --dir {{ data_donation_task_dir }} install --dangerously-allow-all-builds
+ExecStart=/usr/bin/env pnpm --dir {{ data_donation_task_dir }} install --dangerously-allow-all-builds
 
 [Install]
 WantedBy=multi-user.target
